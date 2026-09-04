@@ -16,6 +16,8 @@ const game = (() => {
   canvas.style.boxShadow = '0 0 20px rgba(56, 189, 248, 0.35)';
 
   const root = document.querySelector('.game-frame') || document.body || document.documentElement;
+  const startModal = document.querySelector('.start-modal');
+  const startButton = document.querySelector('.start-button');
   root.appendChild(canvas);
 
   const state = {
@@ -32,7 +34,8 @@ const game = (() => {
     stars: [],
     score: 0,
     highScore: Number(localStorage.getItem('simple-game-high-score') || 0),
-    running: true,
+    started: false,
+    running: false,
     lastTime: 0,
     spawnTimer: 0,
   };
@@ -67,8 +70,14 @@ const game = (() => {
     state.enemies = [];
     state.stars = Array.from({ length: 60 }, createStar);
     state.score = 0;
-    state.running = true;
+    state.running = state.started;
     state.spawnTimer = 0;
+  }
+
+  function startGame() {
+    state.started = true;
+    resetGame();
+    if (startModal) startModal.hidden = true;
   }
 
   function shoot() {
@@ -90,6 +99,10 @@ const game = (() => {
       state.keys.right = true;
     }
     if (event.key === ' ' || event.key === 'Enter') {
+      if (!state.started) {
+        startGame();
+        return;
+      }
       if (!state.running) {
         resetGame();
       } else {
@@ -109,6 +122,7 @@ const game = (() => {
 
   document.addEventListener('keydown', onKeyDown);
   document.addEventListener('keyup', onKeyUp);
+  if (startButton) startButton.addEventListener('click', startGame);
 
   function update(dt) {
     if (!state.running) return;
@@ -200,6 +214,8 @@ const game = (() => {
     ctx.font = '18px sans-serif';
     ctx.fillText(`Score: ${state.score}`, 16, 28);
     ctx.fillText(`Best: ${state.highScore}`, width - 120, 28);
+
+    if (!state.started) return;
 
     if (state.running) {
       ctx.fillStyle = '#38bdf8';
