@@ -15,7 +15,7 @@ const game = (() => {
   canvas.style.borderRadius = '12px';
   canvas.style.boxShadow = '0 0 20px rgba(56, 189, 248, 0.35)';
 
-  const root = document.body || document.documentElement;
+  const root = document.querySelector('.game-frame') || document.body || document.documentElement;
   root.appendChild(canvas);
 
   const state = {
@@ -40,23 +40,24 @@ const game = (() => {
   const rand = (min, max) => Math.random() * (max - min) + min;
 
   function createEnemy() {
+    const radius = rand(8, 14);
     state.enemies.push({
-      x: rand(20, width - 20),
+      x: rand(radius, width - radius),
       y: -20,
-      size: rand(16, 28),
+      radius,
       speed: rand(120, 220),
       color: `hsl(${rand(0, 360)}, 80%, 60%)`,
     });
   }
 
   function createStar() {
-    state.stars.push({
+    return {
       x: rand(0, width),
       y: rand(0, height),
       r: rand(1, 3),
       speed: rand(20, 60),
       alpha: rand(0.3, 1),
-    });
+    };
   }
 
   function resetGame() {
@@ -146,10 +147,10 @@ const game = (() => {
     for (let i = state.enemies.length - 1; i >= 0; i--) {
       const enemy = state.enemies[i];
       const hit =
-        state.player.x < enemy.x + enemy.size &&
-        state.player.x + state.player.width > enemy.x &&
-        state.player.y < enemy.y + enemy.size &&
-        state.player.y + state.player.height > enemy.y;
+        state.player.x < enemy.x + enemy.radius &&
+        state.player.x + state.player.width > enemy.x - enemy.radius &&
+        state.player.y < enemy.y + enemy.radius &&
+        state.player.y + state.player.height > enemy.y - enemy.radius;
 
       if (hit) {
         state.running = false;
@@ -161,10 +162,10 @@ const game = (() => {
       for (let j = state.bullets.length - 1; j >= 0; j--) {
         const bullet = state.bullets[j];
         const bulletHit =
-          bullet.x < enemy.x + enemy.size &&
-          bullet.x + bullet.width > enemy.x &&
-          bullet.y < enemy.y + enemy.size &&
-          bullet.y + bullet.height > enemy.y;
+          bullet.x < enemy.x + enemy.radius &&
+          bullet.x + bullet.width > enemy.x - enemy.radius &&
+          bullet.y < enemy.y + enemy.radius &&
+          bullet.y + bullet.height > enemy.y - enemy.radius;
 
         if (bulletHit) {
           state.enemies.splice(i, 1);
@@ -173,14 +174,16 @@ const game = (() => {
           break;
         }
       }
+
+      if (enemy.y - enemy.radius > state.player.y + state.player.height) {
+        state.running = false;
+        state.highScore = Math.max(state.highScore, state.score);
+        localStorage.setItem('simple-game-high-score', String(state.highScore));
+        break;
+      }
     }
 
     state.enemies = state.enemies.filter((enemy) => enemy.y < height + 40);
-    if (state.enemies.some((enemy) => enemy.y > height - 10)) {
-      state.running = false;
-      state.highScore = Math.max(state.highScore, state.score);
-      localStorage.setItem('simple-game-high-score', String(state.highScore));
-    }
   }
 
   function draw() {
@@ -210,7 +213,7 @@ const game = (() => {
       for (const enemy of state.enemies) {
         ctx.fillStyle = enemy.color;
         ctx.beginPath();
-        ctx.arc(enemy.x, enemy.y, enemy.size / 2, 0, Math.PI * 2);
+        ctx.arc(enemy.x, enemy.y, enemy.radius, 0, Math.PI * 2);
         ctx.fill();
       }
     } else {
@@ -243,6 +246,6 @@ const game = (() => {
   }
 
   resetGame();
-  for (let i = 0; i < 40; i++) createStar();
+  for (let i = 0; i < 40; i++) state.stars.push(createStar());
   requestAnimationFrame(frame);
 })();
