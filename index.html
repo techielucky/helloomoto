@@ -92,6 +92,22 @@
 				color: #cbd5e1;
 			}
 
+			.game-rules {
+				margin: 0 auto 18px;
+				padding: 0;
+				color: #cbd5e1;
+				font-size: 0.9rem;
+				line-height: 1.6;
+				list-style: none;
+			}
+
+			.disclaimer {
+				margin: 0 0 20px !important;
+				color: #94a3b8 !important;
+				font-size: 0.75rem;
+				line-height: 1.4;
+			}
+
 			.start-button {
 				padding: 12px 24px;
 				border: 0;
@@ -149,7 +165,13 @@
 				<div class="start-modal" role="dialog" aria-modal="true" aria-labelledby="start-title">
 					<div>
 						<h2 id="start-title">Ready, pilot?</h2>
-						<p>Move with A/D or the arrow keys, then fire with Space.</p>
+						<p>Game Rules</p>
+						<ul class="game-rules">
+							<li>Move the blue bar with A/D or the arrow keys.</li>
+							<li>Fire with Space and destroy the falling balls.</li>
+							<li>Do not let a ball pass below your bar.</li>
+						</ul>
+						<p class="disclaimer">Disclaimer: This is a simple entertainment game. Play responsibly and take breaks.</p>
 						<button class="start-button" type="button">Start Game</button>
 					</div>
 				</div>
